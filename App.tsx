@@ -46,28 +46,23 @@ const App: React.FC = () => {
     setCurrentView(AppView.REVIEW);
 
     // Call Gemini API to analyze the image
-    const result = await analyzeClassroomImage(imageSrc);
+    // Pass the students list so Gemini can perform face recognition against reference photos
+    const result = await analyzeClassroomImage(imageSrc, currentClass?.students || []);
     setAiResult(result);
 
-    // Simulate "matching" faces. In a real system, this would use embeddings.
-    // Here we will randomly mark students as present based on the count returned by AI to simulate the effect.
     if (selectedClassId) {
       setClasses(prevClasses => prevClasses.map(cls => {
         if (cls.id === selectedClassId) {
-           // Create a copy of students
-           const updatedStudents = [...cls.students];
-           // Reset first
-           updatedStudents.forEach(s => s.status = AttendanceStatus.ABSENT);
-           
-           // Randomly mark 'result.studentCount' number of students as present
-           // (Capped at total student length)
-           const countToMark = Math.min(result.studentCount, updatedStudents.length);
-           const shuffledIndices = Array.from({ length: updatedStudents.length }, (_, i) => i)
-             .sort(() => Math.random() - 0.5);
-           
-           for(let i=0; i < countToMark; i++) {
-             updatedStudents[shuffledIndices[i]].status = AttendanceStatus.PRESENT;
-           }
+           const updatedStudents = cls.students.map(student => {
+             // Check if the student's ID was returned by the AI
+             const isIdentified = result.presentStudentIds?.includes(student.id);
+             
+             return {
+               ...student,
+               status: isIdentified ? AttendanceStatus.PRESENT : AttendanceStatus.ABSENT,
+               confidence: isIdentified ? 0.95 : undefined // Mock confidence
+             };
+           });
 
            return { ...cls, students: updatedStudents };
         }

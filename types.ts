@@ -27,6 +27,7 @@ export interface AIAnalysisResult {
   environmentDescription: string;
   isClassroom: boolean;
   attentivenessScore: string;
+  presentStudentIds: string[];
 }
 
 export enum AppView {
