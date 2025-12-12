@@ -1,0 +1,9 @@
+{
+  "name": "RuralSmart Attendance",
+  "description": "AI-powered automated attendance system designed for rural schools in Punjab to streamline administrative tasks and improve accuracy.",
+  "requestFramePermissions": [
+    "camera",
+    "microphone",
+    "geolocation"
+  ]
+}
